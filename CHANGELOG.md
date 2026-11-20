@@ -6,9 +6,6 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-### Added
-- `scripts/live_check.py` live acceptance check against the real DeepSeek API.
-
 ## [0.1.0] - 2026-11-21
 
 ### Added
@@ -18,6 +15,7 @@ All notable changes to this project are documented here. The format follows
 - `deepseek` text-to-speech provider (DeepSeek TTS, WAV; Hermes converts to Opus voice bubbles).
 - `deepseek_ocr` tool for images and documents the user sent.
 - Per-profile credentials via Hermes' secret scope, safe on multiplexed gateways.
+- `scripts/live_check.py` live acceptance check against the real DeepSeek API.
 
 [Unreleased]: https://github.com/wjiec/hermes-deepseek-tools/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/wjiec/hermes-deepseek-tools/releases/tag/v0.1.0

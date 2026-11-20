@@ -10,8 +10,9 @@ and `httpx` (included in Hermes core). Integration tests target v0.23.3.
 **Disclosure:** selected tools send search queries, URLs, input audio, speech text
 or the local attachments you ask to OCR to `api.deepseek.com`, using the active
 profile's DeepSeek account. Successful calls incur DeepSeek charges. OCR uploads
-file contents; it does not download URLs. Responses and billing have not been
-verified against the live service; tests run offline with simulated HTTP responses.
+file contents; it does not download URLs. CI tests run offline against a mocked API;
+all five capabilities were also verified live on Hermes 0.23.3 (direct calls and a
+Feishu gateway, including voice-bubble replies) before the 0.1.0 release.
 
 Install `ffmpeg` (with `ffprobe`) on the gateway host. ASR uploads PCM 16-bit WAV
 and Ogg Opus voice notes unchanged when within limits, without needing ffmpeg;
