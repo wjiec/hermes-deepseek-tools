@@ -49,6 +49,10 @@ jobs:
         run: .venv/bin/python -m pytest -q
 
       - name: Validate plugin
+        # Validate a clean export: the workspace also holds the Hermes checkout and .venv.
         run: |
           export HERMES_HOME="$(mktemp -d)"
-          .venv/bin/hermes plugins validate .
+          plugin_dir="$(mktemp -d)/deepseek-tools"
+          mkdir -p "$plugin_dir"
+          git archive HEAD | tar -x -C "$plugin_dir"
+          .venv/bin/hermes plugins validate "$plugin_dir"

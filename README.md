@@ -119,6 +119,19 @@ If ASR requires ffmpeg, install it on the gateway host and check both `ffmpeg`
 and `ffprobe` are on PATH. Voice bubbles also require ffmpeg with the Opus encoder.
 Invalid or incomplete TTS WAV responses fail and the partial file is removed.
 
+## Live check
+
+`scripts/live_check.py` calls the real DeepSeek API once per capability for each
+profile you name, through Hermes' own plugin discovery inside that profile's scope
+with multiplexing on. It changes no configuration, prints keys only as 8-character
+fingerprints, and costs one search, one fetch, one short TTS, two short ASR and
+one one-page OCR per profile. Run it with the interpreter that runs Hermes:
+
+```sh
+PY="$(head -1 "$(command -v hermes)" | cut -c3-)"
+"$PY" scripts/live_check.py --profile default --profile <profile> --json live-check.json
+```
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the test setup. Report security issues privately as described in
