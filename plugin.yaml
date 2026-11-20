@@ -1,0 +1,21 @@
+name: deepseek-tools
+version: 0.1.0
+manifest_version: 2
+api_version: 1
+kind: standalone
+label: "DeepSeek Tools"
+description: "DeepSeek Search, Fetch, ASR, TTS and OCR for Hermes. Registers the `deepseek` web_search / web_extract, STT and TTS provider and the `deepseek_ocr` tool. Disclosure — sends search queries, URLs to fetch, voice audio, text to speak and the files you ask it to OCR to api.deepseek.com with the active profile's DEEPSEEK_API_KEY; each successful call is billed to that DeepSeek account. No other network host."
+author: wjiec
+homepage: https://github.com/wjiec/hermes-deepseek-tools
+license: MIT
+requires_hermes: ">=0.23.3"
+tags: [deepseek, web, stt, tts, ocr]
+provides_web_providers:
+  - deepseek
+provides_tools:
+  - deepseek_ocr
+requires_env:
+  - name: DEEPSEEK_API_KEY
+    description: "DeepSeek API key (per profile; set it in that profile's .env)"
+    url: "https://platform.deepseek.com/api_keys"
+    secret: true

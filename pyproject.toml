@@ -1,0 +1,18 @@
+[project]
+name = "hermes-deepseek-tools"
+version = "0.1.0"
+description = "DeepSeek Search, Fetch, ASR, TTS and OCR plugin for Hermes Agent"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "wjiec" }]
+# Runtime needs only httpx, which Hermes core already ships; nothing to install.
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/wjiec/hermes-deepseek-tools"
+Issues = "https://github.com/wjiec/hermes-deepseek-tools/issues"
+Changelog = "https://github.com/wjiec/hermes-deepseek-tools/blob/main/CHANGELOG.md"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

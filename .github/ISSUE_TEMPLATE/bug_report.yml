@@ -1,0 +1,31 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Output of `hermes --version` and the plugin version from `hermes plugins list`
+    validations:
+      required: true
+  - type: dropdown
+    id: capability
+    attributes:
+      label: Capability
+      options: [Search, Fetch, ASR, TTS, OCR, Install / configuration]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      description: Include the error text. Never paste API keys or private documents.
+    validations:
+      required: true
+  - type: checkboxes
+    id: mux
+    attributes:
+      label: Deployment
+      options:
+        - label: Multiplexed gateway (several profiles in one gateway)
