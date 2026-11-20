@@ -8,9 +8,10 @@ configuration: providers are called directly, so profiles keep their configured 
 Cost per profile: 1 search + 1 fetch + 1 short TTS + 2 short ASR + 1 one-page OCR.
 Nothing secret is printed: keys appear only as an 8-character SHA-256 fingerprint.
 
-Usage (with the interpreter that runs Hermes):
+Usage (any python3; the script re-launches itself inside Hermes' own runtime, located with
+``hermes --print-runtime-command``, when Hermes is not importable):
 
-    "$(head -1 "$(command -v hermes)" | cut -c3-)" scripts/live_check.py --profile default --profile <name>
+    python3 scripts/live_check.py --profile default --profile <name> --json live-check.json
 """
 from __future__ import annotations
 
@@ -18,6 +19,8 @@ import argparse
 import asyncio
 import hashlib
 import json
+import os
+import re
 import shutil
 import subprocess
 import sys
@@ -159,12 +162,45 @@ def check_profile(home: Path, work: Path) -> dict:
     return {"home": str(home), "key_fingerprint": fingerprint, "results": results}
 
 
+def _ensure_hermes_runtime() -> None:
+    """Re-exec under the interpreter and source tree the installed ``hermes`` launcher uses."""
+    try:
+        import hermes_constants  # noqa: F401
+        return
+    except ImportError:
+        pass
+    if os.environ.get("_DEEPSEEK_LIVE_CHECK_REEXEC"):
+        sys.exit("live_check: Hermes is still not importable inside its runtime")
+    hermes = shutil.which("hermes")
+    if not hermes:
+        sys.exit("live_check: `hermes` is not on PATH")
+    env = dict(os.environ, _DEEPSEEK_LIVE_CHECK_REEXEC="1")
+    probe = subprocess.run([hermes, "--print-runtime-command"], capture_output=True, text=True)
+    if probe.returncode != 0:
+        # pip/uv installs: the launcher is a console script whose shebang is Hermes' interpreter.
+        with open(hermes, "rb") as launcher:
+            shebang = launcher.readline().decode(errors="replace")
+        if not shebang.startswith("#!") or "python" not in shebang:
+            sys.exit("live_check: cannot locate the Python interpreter that runs Hermes")
+        python = shebang[2:].strip().split()[0]
+        os.execve(python, [python, os.path.abspath(__file__), *sys.argv[1:]], env)
+    argv = json.loads(probe.stdout)
+    match = re.search(r"sys\.path\.insert\(0, '([^']+)'\)", argv[-1])
+    if not match:
+        sys.exit("live_check: could not read the Hermes source root from --print-runtime-command")
+    prelude = ("import os, sys, runpy; os.environ.pop('PYTHONHOME', None); os.environ.pop('PYTHONPATH', None); "
+               f"sys.path.insert(0, {match.group(1)!r}); sys._hermes_pin_default_home = True; import hermes_bootstrap; "
+               "sys.argv = sys.argv[1:]; runpy.run_path(sys.argv[0], run_name='__main__')")
+    os.execve(argv[0], [argv[0], "-I", "-c", prelude, os.path.abspath(__file__), *sys.argv[1:]], env)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--profile", action="append", required=True, help="profile name ('default' for the root home)")
     parser.add_argument("--json", type=Path, help="also write the report to this file")
     parser.add_argument("--debug", action="store_true", help="print tracebacks")
     args = parser.parse_args()
+    _ensure_hermes_runtime()
 
     from agent.secret_scope import set_multiplex_active
     from hermes_cli.version_info import hermes_user_agent

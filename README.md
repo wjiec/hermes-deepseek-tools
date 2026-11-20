@@ -125,11 +125,11 @@ Invalid or incomplete TTS WAV responses fail and the partial file is removed.
 profile you name, through Hermes' own plugin discovery inside that profile's scope
 with multiplexing on. It changes no configuration, prints keys only as 8-character
 fingerprints, and costs one search, one fetch, one short TTS, two short ASR and
-one one-page OCR per profile. Run it with the interpreter that runs Hermes:
+one one-page OCR per profile. Any `python3` works: the script re-launches itself
+inside Hermes' own runtime (found with `hermes --print-runtime-command`):
 
 ```sh
-PY="$(head -1 "$(command -v hermes)" | cut -c3-)"
-"$PY" scripts/live_check.py --profile default --profile <profile> --json live-check.json
+python3 scripts/live_check.py --profile default --profile <profile> --json live-check.json
 ```
 
 ## Development
