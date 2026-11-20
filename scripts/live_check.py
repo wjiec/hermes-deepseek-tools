@@ -147,9 +147,12 @@ def check_profile(home: Path, work: Path) -> dict:
                 out.get("error") or f"pages={out.get('page_count')} text={' '.join(text.split())[:80]!r}"
 
         def ocr_refuses_outside_cache():
-            outside = work / "outside.pdf"
-            outside.write_bytes(_pdf_with_text(OCR_MARKER))
-            out = json.loads(registry.dispatch("deepseek_ocr", {"path": str(outside)}))
+            # Not the work dir: Hermes points TMPDIR at <home>/cache/scratch, which IS media cache.
+            base = "/var/tmp" if os.path.isdir("/var/tmp") else None
+            with tempfile.TemporaryDirectory(prefix="deepseek-live-outside-", dir=base) as outside_dir:
+                outside = Path(outside_dir) / "outside.pdf"
+                outside.write_bytes(_pdf_with_text(OCR_MARKER))
+                out = json.loads(registry.dispatch("deepseek_ocr", {"path": str(outside)}))
             return not out.get("success") and "media cache" in str(out.get("error")), str(out.get("error"))
 
         _step(results, "search", search)
